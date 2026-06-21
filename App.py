@@ -235,8 +235,6 @@ try:
         for reason in reasons:
             st.write(f"✅ {reason}")
 
-            st.subheader("🤖 AI Analysis")
-
             analysis = []
 
         if signal in ["BUY", "STRONG BUY"]:
