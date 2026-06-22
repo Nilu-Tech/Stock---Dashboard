@@ -55,201 +55,217 @@ try:
         else:
             close_series = close_data
 
-        close_series = close_series.astype(float)
+            close_series = close_series.astype(float)
 
-        latest_price = float(close_series.iloc[-1])
+    latest_price = float(close_series.iloc[-1])
+    ticker = yf.Ticker(stock)
+    info = ticker.info
+
+    market_cap = info.get("marketCap", "N/A")
+    pe_ratio = info.get("trailingPE", "N/A")
+    forward_pe = info.get("forwardPE", "N/A")
+    dividend_yield = info.get("dividendYield", "N/A")
+    fifty_two_high = info.get("fiftyTwoWeekHigh", "N/A")
+    fifty_two_low = info.get("fiftyTwoWeekLow", "N/A")
+    sector = info.get("sector", "N/A")
+    industry = info.get("industry", "N/A")
+    beta = info.get("beta", "N/A")
+    book_value = info.get("bookValue", "N/A")
+
+    if market_cap != "N/A":
+         market_cap = f"₹{market_cap/10000000:.2f} Cr"
 
         # ---------------- RSI ----------------
-        delta = close_series.diff()
+         delta = close_series.diff()
 
-        gain = delta.where(delta > 0, 0)
-        loss = -delta.where(delta < 0, 0)
+         gain = delta.where(delta > 0, 0)
+         loss = -delta.where(delta < 0, 0)
 
-        avg_gain = gain.rolling(14).mean()
-        avg_loss = loss.rolling(14).mean()
+         avg_gain = gain.rolling(14).mean()
+         avg_loss = loss.rolling(14).mean()
 
-        rs = avg_gain / avg_loss
-        rsi = 100 - (100 / (1 + rs))
+         rs = avg_gain / avg_loss
+         rsi = 100 - (100 / (1 + rs))
 
         # ---------------- EMA ----------------
-        ema20 = close_series.ewm(
+         ema20 = close_series.ewm(
             span=20,
             adjust=False
-        ).mean()
+         ).mean()
 
-        ema50 = close_series.ewm(
+         ema50 = close_series.ewm(
             span=50,
             adjust=False
-        ).mean()
+         ).mean()
 
         # ---------------- MACD ----------------
-        ema12 = close_series.ewm(
+         ema12 = close_series.ewm(
             span=12,
             adjust=False
-        ).mean()
+         ).mean()
 
-        ema26 = close_series.ewm(
+         ema26 = close_series.ewm(
             span=26,
             adjust=False
-        ).mean()
+         ).mean()
 
-        macd = ema12 - ema26
+         macd = ema12 - ema26
 
-        signal_line = macd.ewm(
+         signal_line = macd.ewm(
             span=9,
             adjust=False
-        ).mean()
+         ).mean()
 
         # ---------------- VOLUME ----------------
-        volume_data = data["Volume"]
+         volume_data = data["Volume"]
 
-        if hasattr(volume_data, "columns"):
+         if hasattr(volume_data, "columns"):
             volume_series = volume_data.iloc[:, 0]
-        else:
+         else:
             volume_series = volume_data
 
-        avg_volume = volume_series.rolling(20).mean()
-        latest_volume = float(volume_series.iloc[-1])
+         avg_volume = volume_series.rolling(20).mean()
+         latest_volume = float(volume_series.iloc[-1])
 
         # ---------------- SUPPORT / RESISTANCE ----------------
-        support = float(low_data.tail(20).min())
-        resistance = float(high_data.tail(20).max())
+         support = float(low_data.tail(20).min())
+         resistance = float(high_data.tail(20).max())
 
         # ---------------- SCORE SYSTEM ----------------
-        signal = "HOLD"
-        reasons = []
-        score = 50
+         signal = "HOLD"
+         reasons = []
+         score = 50
 
         # RSI
-        if rsi.iloc[-1] < 30:
+         if rsi.iloc[-1] < 30:
             score += 20
             reasons.append("RSI is Oversold")
 
-        elif rsi.iloc[-1] > 70:
+         elif rsi.iloc[-1] > 70:
             score -= 20
             reasons.append("RSI is Overbought")
 
         # EMA
-        if ema20.iloc[-1] > ema50.iloc[-1]:
+         if ema20.iloc[-1] > ema50.iloc[-1]:
             score += 15
             reasons.append("EMA20 above EMA50")
-        else:
+         else:
             score -= 15
             reasons.append("EMA20 below EMA50")
 
         # MACD
-        if macd.iloc[-1] > signal_line.iloc[-1]:
+         if macd.iloc[-1] > signal_line.iloc[-1]:
             score += 15
             reasons.append("MACD Bullish")
-        else:
+         else:
             score -= 15
             reasons.append("MACD Bearish")
 
         # Volume
-        if latest_volume > avg_volume.iloc[-1] * 1.5:
+         if latest_volume > avg_volume.iloc[-1] * 1.5:
             score += 10
             reasons.append("High Volume")
-        else:
+         else:
             reasons.append("Normal Volume")
 
         # Support
-        if latest_price <= support * 1.02:
+         if latest_price <= support * 1.02:
             score += 10
             reasons.append("Price Near Support")
 
         # Resistance
-        if latest_price >= resistance * 0.98:
+         if latest_price >= resistance * 0.98:
             score -= 10
             reasons.append("Price Near Resistance")
 
         # Final Signal
-        if score >= 75:
+         if score >= 75:
             signal = "STRONG BUY"
 
-        elif score >= 60:
+         elif score >= 60:
             signal = "BUY"
 
-        elif score <= 25:
+         elif score <= 25:
             signal = "STRONG SELL"
 
-        elif score <= 40:
+         elif score <= 40:
             signal = "SELL"
 
-        else:
+         else:
             signal = "HOLD"
 
         # ---------------- METRICS ----------------
-        st.subheader(f"{stock} Live Data")
+         st.subheader(f"{stock} Live Data")
 
-        c1, c2, c3 = st.columns(3)
+         c1, c2, c3 = st.columns(3)
 
-        with c1:
+         with c1:
             st.metric(
                 "Current Price",
                 f"₹{latest_price:.2f}"
             )
 
-        with c2:
+         with c2:
             st.metric(
                 "RSI",
                 f"{rsi.iloc[-1]:.2f}"
             )
 
-        with c3:
+         with c3:
             st.metric(
                 "EMA20",
                 f"₹{ema20.iloc[-1]:.2f}"
             )
 
-        c4, c5 = st.columns(2)
+         c4, c5 = st.columns(2)
 
-        with c4:
+         with c4:
             st.metric(
                 "Score",
                 f"{score}/100"
              )
 
-        with c5:
+         with c5:
             st.metric(
                 "Volume",
                 f"{latest_volume:,.0f}"
             )
 
         # ---------------- SIGNAL ----------------
-        st.subheader("📊 Trading Signal")
+         st.subheader("📊 Trading Signal")
 
-        if signal in ["BUY", "STRONG BUY"]:
+         if signal in ["BUY", "STRONG BUY"]:
             st.success(f"🟢 {signal}")
 
-        elif signal in ["SELL", "STRONG SELL"]:
+         elif signal in ["SELL", "STRONG SELL"]:
             st.error(f"🔴 {signal}")
 
-        else:
+         else:
             st.warning(f"🟡 {signal}")
 
-        st.metric(
+         st.metric(
             "Recommendation",
             signal
-        )
+         )
 
-        for reason in reasons:
+         for reason in reasons:
             st.write(f"✅ {reason}")
 
             analysis = []
 
-        if signal in ["BUY", "STRONG BUY"]:
-         analysis.append(
-        f"The stock looks bullish with a score of {score}/100."
+         if signal in ["BUY", "STRONG BUY"]:
+             analysis.append(
+         f"The stock looks bullish with a score of {score}/100."
     )
 
-        elif signal in ["SELL", "STRONG SELL"]:
-         analysis.append(
-        f"The stock looks weak with a score of {score}/100."
+         elif signal in ["SELL", "STRONG SELL"]:
+            analysis.append(
+         f"The stock looks weak with a score of {score}/100."
     )
 
-        else:
-         analysis.append(
-        f"The stock is neutral with a score of {score}/100."
+         else:
+            analysis.append(
+         f"The stock is neutral with a score of {score}/100."
     )
 
          if latest_price <= support * 1.02:
@@ -308,9 +324,43 @@ try:
                 use_container_width=True
             )
 
-            with right:
-               st.subheader("Latest Data")
-               st.dataframe(data.tail())
+    with right:
+        st.subheader("Latest Data")
+        st.dataframe(data.tail())
+     
+    st.divider()
+    st.subheader("🏢 Company Fundamentals")
+
+    f1, f2, f3, f4 = st.columns(4)
+
+    with f1:
+     st.metric(
+        "P/E Ratio",
+        pe_ratio
+    )
+
+    with f2:
+     st.metric(
+        "52W High",
+        f"₹{fifty_two_high}"
+    )
+
+    with f3:
+     st.metric(
+        "52W Low",
+        f"₹{fifty_two_low}"
+    )
+
+    with f4:
+     st.metric(
+        "Beta",
+        beta
+    )
+
+     st.write("📊 Sector:", sector)
+     st.write("🏭 Industry:", industry)
+     st.write("📚 Book Value:", book_value)
+     st.write("💰 Market Cap:", market_cap)
 
         # ---------------- MARKET NEWS ----------------
     st.divider()
