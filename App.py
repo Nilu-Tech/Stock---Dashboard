@@ -12,10 +12,10 @@ st.set_page_config(
     layout="wide"
 )
 
-st_autorefresh(
-    interval=60000,
-    key="refresh"
-)
+#st_autorefresh(
+#    interval=300000,
+#    key="refresh"
+#)
 
 st.title("📈 Indian Stock Market Dashboard")
 
@@ -58,9 +58,11 @@ try:
             close_series = close_series.astype(float)
 
     latest_price = float(close_series.iloc[-1])
-    ticker = yf.Ticker(stock)
-    info = ticker.info
-
+    try:
+     ticker = yf.Ticker(stock)
+     info = ticker.info
+    except:
+     info={}
     market_cap = info.get("marketCap", "N/A")
     pe_ratio = info.get("trailingPE", "N/A")
     forward_pe = info.get("forwardPE", "N/A")
