@@ -337,6 +337,7 @@ try:
     list(stocks.keys()),
     key="portfolio_stock"
 )
+    st.session_state["selected_stock"] = selected_stock
 
     quantity = st.number_input(
     "Quantity",
