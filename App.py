@@ -310,75 +310,7 @@ try:
                 f"• [{article.title}]({article.link})"
             )
 
-        # ---------------- MARKET MOVERS ----------------
-    st.divider()
-    st.subheader("🔥 Market Movers")
-
-    watchlist = {
-            "Reliance": "RELIANCE.NS",
-            "TCS": "TCS.NS",
-            "Infosys": "INFY.NS",
-            "ITC": "ITC.NS",
-            "HDFC Bank": "HDFCBANK.NS",
-            "ICICI Bank": "ICICIBANK.NS",
-            "SBI": "SBIN.NS",
-            "Bharti Airtel": "BHARTIARTL.NS",
-        }
-
-    movers = []
-
-    for name, symbol in watchlist.items():
-            try:
-                df = yf.download(
-                    symbol,
-                    period="2d",
-                    interval="1d",
-                    progress=False
-                )
-
-                if len(df) >= 2:
-                    close = df["Close"]
-
-                    if hasattr(close, "columns"):
-                        close = close.iloc[:, 0]
-
-                    change = (
-                        (close.iloc[-1] - close.iloc[-2])
-                        / close.iloc[-2]
-                    ) * 100
-
-                    movers.append(
-                        {
-                            "Stock": name,
-                            "Change %": round(change, 2)
-                        }
-                    )
-
-            except:
-                pass
-
-    if movers:
-            movers_df = pd.DataFrame(movers)
-
-            gainers = movers_df.sort_values(
-                "Change %",
-                ascending=False
-            ).head(3)
-
-            losers = movers_df.sort_values(
-                "Change %",
-                ascending=True
-            ).head(3)
-
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.success("📈 Top Gainers")
-                st.dataframe(gainers)
-
-            with col2:
-                st.error("📉 Top Losers")
-                st.dataframe(losers)
+        
     # ---------------- PORTFOLIO TRACKER ----------------
     st.divider()
     st.subheader("💼 Portfolio Tracker")
