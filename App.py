@@ -296,74 +296,7 @@ try:
     with col_b:
             st.info(f"📈 Resistance: ₹{resistance:.2f}")
 
-        # ---------------- CHART + TABLE ----------------
-    left, right = st.columns([2, 1])
-
-    with left:
-
-            fig = go.Figure(
-                data=[
-                    go.Candlestick(
-                        x=data.index,
-                        open=open_data,
-                        high=high_data,
-                        low=low_data,
-                        close=close_series,
-                        name=stock
-                    )
-                ]
-            )
-
-            fig.update_layout(
-                title=f"{stock} Candlestick Chart",
-                xaxis_title="Time",
-                yaxis_title="Price (₹)",
-                height=600
-            )
-
-            st.plotly_chart(
-                fig,
-                use_container_width=True
-            )
-
-    with right:
-        st.subheader("Latest Data")
-        st.dataframe(data.tail())
-     
-    st.divider()
-    st.subheader("🏢 Company Fundamentals")
-
-    f1, f2, f3, f4 = st.columns(4)
-
-    with f1:
-     st.metric(
-        "P/E Ratio",
-        pe_ratio
-    )
-
-    with f2:
-     st.metric(
-        "52W High",
-        f"₹{fifty_two_high}"
-    )
-
-    with f3:
-     st.metric(
-        "52W Low",
-        f"₹{fifty_two_low}"
-    )
-
-    with f4:
-     st.metric(
-        "Beta",
-        beta
-    )
-
-     st.write("📊 Sector:", sector)
-     st.write("🏭 Industry:", industry)
-     st.write("📚 Book Value:", book_value)
-     st.write("💰 Market Cap:", market_cap)
-
+       
         # ---------------- MARKET NEWS ----------------
     st.divider()
     st.subheader("📰 Latest Market News")
