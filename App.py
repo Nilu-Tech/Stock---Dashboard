@@ -17,11 +17,19 @@ st.set_page_config(
 #    key="refresh"
 #)
 
-st.title("📈 Stock Vision")
+from datetime import datetime
 
-st.caption(
-    "Smart Stock Analysis. Simplified"
-)
+current_time = datetime.now().strftime("%I:%M %p")
+
+left, right = st.columns([3, 1])
+
+with left:
+    st.title("📈 StockVision")
+    st.caption("Smart Stock Analysis. Simplified.")
+
+with right:
+    st.success("🟢 Market Open")
+    st.caption(f"🕒 {current_time}")
 
 st.divider()
 
