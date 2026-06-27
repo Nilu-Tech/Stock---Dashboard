@@ -17,8 +17,13 @@ st_autorefresh(
     key="refresh"
 )
 
-st.title("📈 Indian Stock Market Dashboard")
+st.title("📈 Stock Vision")
 
+st.caption(
+    "Smart Stock Analysis. Simplified"
+)
+
+st.divider()
 # ---------------- STOCK SELECT ----------------
 selected_stock = st.selectbox(
     "Select Stock",
